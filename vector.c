@@ -6,7 +6,7 @@ void vectorInit(vector *v, size_t len){
 }
 
 void freeVector(vector *v){
-  free(v->vals);
+  free((*v).vals);
   (*v).vals = NULL;
   (*v).dim = 0;
 }

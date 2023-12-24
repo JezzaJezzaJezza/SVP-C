@@ -4,6 +4,7 @@ typedef struct{
     size_t dim;
 } vector;
 
+
 void vectorInit(vector *v, size_t len);
 void freeVector(vector *v);
 

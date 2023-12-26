@@ -5,6 +5,7 @@
 
 #include "vector.h"
 
+
 int main(int argc, char** argv){
     // Read in command line argument (expects 1)
     // Reading in the input and creating the necessary data to store
@@ -15,58 +16,44 @@ int main(int argc, char** argv){
 
     basis b = malloc(dimension * sizeof(vector*));
 
-    //printf("%i\n",dimension);
-
+//MAKE TEMPLATE STYLE FOR EACH DIM UPTO 10, THEN DO A GENERIC ONE LIKE YOU DID HERE.
 
     for (int i = 0; i < dimension; i++){
-
-        vector *v = malloc(sizeof(vector));
-        (*v).dim = dimension;
-        (*v).vals = malloc((*v).dim * sizeof(double));
-
+        //vector *v = malloc(sizeof(vector));
+        vector v = malloc(dimension * sizeof(double));
+        //*v = malloc(v * sizeof(double));
         for (int j = 0; j < dimension; j++){
-
+            
             char *arg = argv[i * dimension + j + 1];
 
             if (arg[0] == '['){
-                //memmove(argv[i * dimension + j + 1][0], argv[i * dimension + j + 1][0] + 1, argc);
                 arg++;
             }
-            
 
-            printf("%c\n", arg[strlen(arg) - 1]);
 
             if (arg[strlen(arg) - 1] == ']'){
-                //argv[i * dimension + j + 1][strlen(argv[i * dimension + j + 1])] - 1 = "\0";
-                //arg++;
                 arg[strlen(arg) - 1] = '\0';
             }
-            (*v).vals[j] = atof(arg);
+            v[j] = atof(arg);
+            printf("Value:  %f\n", v[j] );
         }
-
-        b[i] = *v;
+        b[i] = v;
 
     }
     
 
-    // printf("Vectors:\n");
-    // for (int i = 0; i < dimension; i++) {
-    //     printf("Vector %d: ", i);
-    //     printVector(b[i]);
-    // }
+    vector largest = getMax(b, dimension);
 
+
+    for (int i = 0; i < dimension; i++){
+        printf("%f\n",largest[i]);
+    }
     
-    for (int i = 0; i < 2; i++){
-        printf("Value:  %f\n", b[i].vals[1] );
-   }
 
    for (int i = 0; i < argc - 1; i++){
-        free(b[i].vals);
+        free(b[i]);
    }
    free(b);
     return 0;
-
-
-// int parseVector(){
 }
 

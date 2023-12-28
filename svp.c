@@ -5,6 +5,22 @@
 
 #include "vector.h"
 
+vector svpSolve(basis b, int dim){
+    basis mu = (basis)malloc(sizeof(vector) * dim);
+    for (int i = 0; i < dim; i++){
+        mu[i] = (vector)malloc(sizeof(double) * dim);
+    }
+
+    basis bStar = (basis)malloc(sizeof(vector) * dim);
+    for (int i = 0; i < dim; i++){
+        bStar[i] = (vector)malloc(sizeof(double) * dim);
+    }
+
+    bStar = gramSchmidt(b, dim, mu, bStar);
+    printf("%f\n", mu[1][0]);
+    printf("%f\n", bStar[0][1]);
+    return b[0];
+}
 
 int main(int argc, char** argv){
     // Read in command line argument (expects 1)
@@ -41,13 +57,9 @@ int main(int argc, char** argv){
 
     }
     
-
-    vector largest = getMax(b, dimension);
-
-
-    for (int i = 0; i < dimension; i++){
-        printf("%f\n",largest[i]);
-    }
+    vector out = malloc(dimension * sizeof(double));
+    out = svpSolve(b, dimension);
+    //vector largest = getMax(b, dimension);
     
 
    for (int i = 0; i < argc - 1; i++){

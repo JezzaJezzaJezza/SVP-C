@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I. -g -O3
+CFLAGS=-I. -O3
 DEPS = vector.h
 
 all: svp.o vector.o

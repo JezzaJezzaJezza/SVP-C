@@ -16,15 +16,8 @@ long double svpSolve(basis b, int dim){
         bStar[i] = (vector)malloc(sizeof(long double) * dim);
     }
     
-    //printf("test\n");
+
     lll(b, dim);
-    //printf("test\n");
-    // for(int i = 0; i < dim ;i++){
-    //     for(int j = 0; j < dim ;j++){
-    //         printf("%f ", b[i][j]);
-    //     }
-    //     printf("\n");
-    // }
 
     bStar = gramSchmidt(b, dim, mu, bStar);
 
@@ -161,7 +154,7 @@ int main(int argc, char** argv){
     
     long double out;
     out = svpSolve(b, dimension);
-    printf("%Lf\n", out);
+    //printf("%Lf\n", out);
     
     
 

@@ -63,7 +63,7 @@ void copyVec(long double* v, long double* w, int dim) {
     for (int i = 0; i < dim; i++) w[i] = v[i];
 }
 
-basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ //DOUBLE CHECK THAT ALL ZEROS ARENT POSITIVE OR NEGATIVE
+basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ 
   vector v = (vector)malloc(sizeof(long double) * dim);
   long double* tmp = malloc(sizeof(long double) * dim);
 
@@ -94,12 +94,12 @@ basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ //DOUBLE CHECK THAT 
     }
     copyVec(v, bStar[i], dim);
 
-    for (int i = 0; i < dim; i++){
-    for (int j = 0; j < dim; j++){
-      printf("%Lf ", bStar[i][j]);
-    }
-    printf("\n");
-  }
+  //   for (int i = 0; i < dim; i++){
+  //   for (int j = 0; j < dim; j++){
+  //     printf("%Lf ", bStar[i][j]);
+  //   }
+  //   printf("\n");
+  // }
   }
 
 
@@ -159,10 +159,10 @@ void lll(basis b, int dim){
   long double delta = 0.75;
   vector tmpCpy = (vector)malloc(sizeof(long double) * dim);
 
-  while(k <= dim){
-    for (int j = k - 1; j <= 0; j--){
+  while(k < dim){ //was k<= dim
+    for (int j = k - 1; j >= 0; j--){
       if (fabs(lllMu[k][j]) > 1/2){
-        printf("test\n");
+
         copyVec(b[j], tmpCpy, dim);
         scalarMult(tmpCpy, round(lllMu[k][j]), dim);
         subV(b[k], tmpCpy, dim);
@@ -171,22 +171,25 @@ void lll(basis b, int dim){
         lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
       }
     }
+
     copyVec(lllBStar[k - 1], tmpCpy, dim);
     if (innerProd(lllBStar[k], lllBStar[k], dim) > ((delta - pow(lllMu[k][k - 1], 2)) * innerProd(tmpCpy, tmpCpy, dim))){
-      k += 1;
-    } else {
-      copyVec(b[k], tmpCpy, dim);
-      copyVec(b[k - 1], b[k], dim);
-      copyVec(tmpCpy, b[k], dim);
 
+      k += 1;
+
+    } else {
+      
+      copyVec(b[k], tmpCpy, dim);
+      
+      copyVec(b[k - 1], b[k], dim);
+      
+      copyVec(tmpCpy, b[k - 1], dim);
 
       lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
-      k = fmax(k - 1, 2);
+      
+      k = fmax(k - 1, 1); //was fmax(k - 1, 2)
     }
-
-
   }
-  //return b;
 }
 
 long double muSum(basis mu, vector v, long double dim, int startBound){

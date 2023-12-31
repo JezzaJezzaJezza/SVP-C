@@ -4,7 +4,7 @@
 #include <string.h>
 
 void vectorInit(vector *v, int len){
-  *v = (double *)malloc(len * sizeof(int));
+  *v = (long double *)malloc(len * sizeof(int));
 }
 
 void freeVector(vector *v){
@@ -16,17 +16,12 @@ void freeVector(vector *v){
 
 
 //use inline
-double innerProd(vector v, vector u, int dim){
-  double solution = 0;
+long double innerProd(vector v, vector u, int dim){
+  long double solution = 0;
   for (int i = 0; i < dim; i++){
     solution += (v[i] * u[i]);
   }
   return solution;
-// def innerProd(v,u):
-//     solution = 0
-//     for i in range(len(v)):
-//         solution += v[i] * u[i]
-//     return solution
 }
 
 vector addV(vector v, vector u, int dim){
@@ -34,44 +29,27 @@ vector addV(vector v, vector u, int dim){
     v[i] += u[i];
   }
   return v;
-// def addVectors(currentVector, possibleVector):
-//     for i in range(len(currentVector)):
-//         currentVector[i] += possibleVector[i]
-//     return currentVector
 }
 
-void scalarMult(vector v, double mult, int dim){
+void scalarMult(vector v, long double mult, int dim){
   for (int i = 0; i < dim; i++){
     v[i] = v[i] * mult;
   }
-// def multVector(vector, multiplier):
-//     for i in range(vector):
-//         vector[i] = vector[i] * multiplier
 }
 
-// vector subV(vector v, vector u, int dim){
-//   for (int i = 0; i < dim; i++){
-//     v[i] -= u[i];
-//   }
-// // def subVectors(currentVector, possibleVector):
-// //     for i in range(len(currentVector)):
-// //         currentVector[i] -= possibleVector[i]
-// //     return currentVector
-// }
-
-void subV(double* v, double* u, int dim) {
+void subV(long double* v, long double* u, int dim) {
   for (int i = 0; i < dim; i++) v[i] -= u[i];
 }
 
-double norm(vector v, int dim){
+long double norm(vector v, int dim){
   
-  vector squaredVals = (vector)malloc(sizeof(double) * dim);
+  vector squaredVals = (vector)malloc(sizeof(long double) * dim);
 
   for (int i = 0; i < dim; i++){
     squaredVals[i] = pow(v[i], 2);
   }
 
-  double output = 0;
+  long double output = 0;
 
   for (int i = 0; i < dim; i++){
     output += squaredVals[i];
@@ -81,22 +59,19 @@ double norm(vector v, int dim){
   return output;
 }
 
-void copyVec(double* v, double* w, int dim) {
+void copyVec(long double* v, long double* w, int dim) {
     for (int i = 0; i < dim; i++) w[i] = v[i];
 }
 
-basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
-  
-  vector v = (vector)malloc(sizeof(double) * dim);
-  double* tmp = malloc(sizeof(double) * dim);
- 
-  for (int i = 0; i < dim; i++){
-          bStar[0][i] = b[0][i];
-      }
+basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ //DOUBLE CHECK THAT ALL ZEROS ARENT POSITIVE OR NEGATIVE
+  vector v = (vector)malloc(sizeof(long double) * dim);
+  long double* tmp = malloc(sizeof(long double) * dim);
+
+  copyVec(b[0], bStar[0], dim);
 
   for (int i = 1; i < dim; i++){
 
-    copyVec(v, tmp, dim);
+    //copyVec(v, tmp, dim);
     
     copyVec(b[i], v, dim);
     
@@ -119,25 +94,25 @@ basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
     }
     copyVec(v, bStar[i], dim);
 
-    // for (int i = 0; i < dim; i++){
-    // for (int j = 0; j < dim; j++){
-    //   printf("%f ", bStar[i][j]);
-    // }
-    // printf("\n");
-  //}
+    for (int i = 0; i < dim; i++){
+    for (int j = 0; j < dim; j++){
+      printf("%Lf ", bStar[i][j]);
+    }
+    printf("\n");
+  }
   }
 
 
   return bStar;
 }
 
-double minkowskiB(basis bStar, int dim){
-  double gamma;
-  gamma = 1 + ((double)dim/4);
+long double minkowskiB(basis bStar, int dim){
+  long double gamma;
+  gamma = 1 + ((long double)dim/4);
 
   gamma = sqrt(gamma);
 
-  vector normArray = (vector)malloc(sizeof(double) * dim);
+  vector normArray = (vector)malloc(sizeof(long double) * dim);
 
 
   for (int i = 0; i < dim; i++){
@@ -149,15 +124,15 @@ double minkowskiB(basis bStar, int dim){
   // printf("norm 3: %f\n", normArray[3]);
   // printf("norm 4: %f\n", normArray[4]);
 
-  double volume;
+  long double volume;
   volume = 1;
   for (int i = 0; i < dim; i++){
     volume *= normArray[i];
   }
 
-  volume = pow(volume, (1/(double)dim));
+  volume = pow(volume, (1/(long double)dim));
 
-  double bound;
+  long double bound;
 
   bound = gamma * volume;
 
@@ -168,32 +143,36 @@ void lll(basis b, int dim){
   basis lllBStar = (basis)malloc(sizeof(vector) * dim);
 
   for (int i = 0; i < dim; i++){
-    lllBStar[i] = (vector)malloc(sizeof(double) * dim);
+    lllBStar[i] = (vector)malloc(sizeof(long double) * dim);
   }
 
   basis lllMu = (basis)malloc(sizeof(vector) * dim);
 
   for (int i = 0; i < dim; i++){
-    lllMu[i] = (vector)malloc(sizeof(double) * dim);
+    lllMu[i] = (vector)malloc(sizeof(long double) * dim);
   }
+
 
   lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
 
   int k = 1;
-  double delta = 0.75;
-  vector tmpCpy = (vector)malloc(sizeof(double) * dim);
+  long double delta = 0.75;
+  vector tmpCpy = (vector)malloc(sizeof(long double) * dim);
 
   while(k <= dim){
     for (int j = k - 1; j <= 0; j--){
       if (fabs(lllMu[k][j]) > 1/2){
-        scalarMult(b[j], round(lllMu[k][j]), dim);
-        subV(b[k], b[j], dim);
+        printf("test\n");
+        copyVec(b[j], tmpCpy, dim);
+        scalarMult(tmpCpy, round(lllMu[k][j]), dim);
+        subV(b[k], tmpCpy, dim);
 
         //naive way
         lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
       }
     }
-    if (innerProd(lllBStar[k], lllBStar[k], dim) > ((delta - pow(lllMu[k][k - 1], 2)) * innerProd(lllBStar[k - 1], lllBStar[k - 1], dim))){
+    copyVec(lllBStar[k - 1], tmpCpy, dim);
+    if (innerProd(lllBStar[k], lllBStar[k], dim) > ((delta - pow(lllMu[k][k - 1], 2)) * innerProd(tmpCpy, tmpCpy, dim))){
       k += 1;
     } else {
       copyVec(b[k], tmpCpy, dim);
@@ -210,8 +189,8 @@ void lll(basis b, int dim){
   //return b;
 }
 
-double muSum(basis mu, vector v, double dim, int startBound){
-  double collector = 0;
+long double muSum(basis mu, vector v, long double dim, int startBound){
+  long double collector = 0;
   for (int i = startBound; i < dim; i++){
     collector -= (mu[i][startBound - 1] * v[i]);
   }

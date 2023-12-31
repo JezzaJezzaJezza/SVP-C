@@ -5,22 +5,31 @@
 
 #include "vector.h"
 
-double svpSolve(basis b, int dim){
+long double svpSolve(basis b, int dim){
     basis mu = (basis)malloc(sizeof(vector) * dim);
     for (int i = 0; i < dim; i++){
-        mu[i] = (vector)malloc(sizeof(double) * dim);
+        mu[i] = (vector)malloc(sizeof(long double) * dim);
     }
 
     basis bStar = (basis)malloc(sizeof(vector) * dim);
     for (int i = 0; i < dim; i++){
-        bStar[i] = (vector)malloc(sizeof(double) * dim);
+        bStar[i] = (vector)malloc(sizeof(long double) * dim);
     }
     
-    //lll(b, dim);
+    //printf("test\n");
+    lll(b, dim);
+    //printf("test\n");
+    // for(int i = 0; i < dim ;i++){
+    //     for(int j = 0; j < dim ;j++){
+    //         printf("%f ", b[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+
     bStar = gramSchmidt(b, dim, mu, bStar);
 
-    double R;
-    double rSquared;
+    long double R;
+    long double rSquared;
 
     for (int i = 0; i < dim; i++){
         mu[i][i] = 1;
@@ -28,15 +37,17 @@ double svpSolve(basis b, int dim){
     //printf("%f\n", mu[0][0]);
 
     R = minkowskiB(bStar, dim);
+    //printf("%f\n", R);
 
     rSquared = pow(R, 2);
     
+    //printf("%f\n", R);
 
-    vector rho = (vector)calloc(dim + 1, sizeof(double));
-    vector v = (vector)calloc(dim, sizeof(double));
+    vector rho = (vector)calloc(dim + 1, sizeof(long double));
+    vector v = (vector)calloc(dim, sizeof(long double));
     v[0] = 1;
-    vector c = (vector)calloc(dim, sizeof(double));
-    vector w = (vector)calloc(dim, sizeof(double));
+    vector c = (vector)calloc(dim, sizeof(long double));
+    vector w = (vector)calloc(dim, sizeof(long double));
 
     int k = 0;
     int largest = 0;
@@ -60,7 +71,11 @@ double svpSolve(basis b, int dim){
                 //printf("after c[k]: %f\n", c[k]);
 
                 //printf("before v[k]: %f\n", v[k]);
+                // printf("c[k] = %f\n", c[k]);
+                // printf("v[k] = %f\n", v[k]);
                 v[k] = round(c[k]);
+                // printf("v[k] = %f\n", v[k]);
+                // printf("c[k] = %f\n", c[k]);
                 //printf("before v[k] (rounds c[k] to nearest int): %f\n", v[k]);
 
                 //printf("before w[k]: %f\n", w[k]);
@@ -123,8 +138,8 @@ int main(int argc, char** argv){
 //MAKE TEMPLATE STYLE FOR EACH DIM UPTO 10, THEN DO A GENERIC ONE LIKE YOU DID HERE.
     for (int i = 0; i < dimension; i++){
         //vector *v = malloc(sizeof(vector));
-        vector v = malloc(dimension * sizeof(double));
-        //*v = malloc(v * sizeof(double));
+        vector v = malloc(dimension * sizeof(long double));
+        //*v = malloc(v * sizeof(long double));
         for (int j = 0; j < dimension; j++){
             
             char *arg = argv[i * dimension + j + 1];
@@ -144,9 +159,9 @@ int main(int argc, char** argv){
 
     }
     
-    double out;
+    long double out;
     out = svpSolve(b, dimension);
-    printf("%f\n", out);
+    printf("%Lf\n", out);
     
     
 

@@ -4,20 +4,27 @@
 #include <string.h>
 
 void vectorInit(vector *v, int len){
-  *v = (long double *)malloc(len * sizeof(int));
+  *v = (double *)malloc(len * sizeof(int));
 }
 
-void freeVector(vector *v){
-  free(*v);
-  *v = NULL;
+void freeVector(vector v){
+  free(v);
+  v = NULL;
+}
+
+void freeBasis(basis b, int dim){
+  for (int i = 0; i < dim; i++){
+      freeVector(b[i]);
+   }
+   free(b);
 }
 
 
 
 
 //use inline
-long double innerProd(vector v, vector u, int dim){
-  long double solution = 0;
+double innerProd(vector v, vector u, int dim){
+  double solution = 0;
   for (int i = 0; i < dim; i++){
     solution += (v[i] * u[i]);
   }
@@ -31,41 +38,47 @@ vector addV(vector v, vector u, int dim){
   return v;
 }
 
-void scalarMult(vector v, long double mult, int dim){
+void scalarMult(vector v, double mult, int dim){
   for (int i = 0; i < dim; i++){
     v[i] = v[i] * mult;
   }
 }
 
-void subV(long double* v, long double* u, int dim) {
-  for (int i = 0; i < dim; i++) v[i] -= u[i];
+void subV(double* v, double* u, int dim) {
+  for (int i = 0; i < dim; i++) {
+    v[i] -= u[i];
+  }
 }
 
-long double norm(vector v, int dim){
+double norm(vector v, int dim){
   
-  vector squaredVals = (vector)malloc(sizeof(long double) * dim);
+  vector squaredVals = (vector)malloc(sizeof(double) * dim);
 
   for (int i = 0; i < dim; i++){
     squaredVals[i] = pow(v[i], 2);
   }
 
-  long double output = 0;
+  double output = 0;
 
   for (int i = 0; i < dim; i++){
     output += squaredVals[i];
   }
 
+  freeVector(squaredVals);
+
   output = sqrt(output);
   return output;
 }
 
-void copyVec(long double* v, long double* w, int dim) {
-    for (int i = 0; i < dim; i++) w[i] = v[i];
+void copyVec(vector v, vector w, int dim) {
+    for (int i = 0; i < dim; i++){
+      w[i] = v[i];
+    }
 }
 
 basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ 
-  vector v = (vector)malloc(sizeof(long double) * dim);
-  long double* tmp = malloc(sizeof(long double) * dim);
+  vector v = (vector)malloc(sizeof(double) * dim);
+  vector tmp = malloc(sizeof(double) * dim);
 
   copyVec(b[0], bStar[0], dim);
 
@@ -94,45 +107,37 @@ basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
     }
     copyVec(v, bStar[i], dim);
 
-  //   for (int i = 0; i < dim; i++){
-  //   for (int j = 0; j < dim; j++){
-  //     printf("%Lf ", bStar[i][j]);
-  //   }
-  //   printf("\n");
-  // }
   }
-
+  freeVector(v);
+  freeVector(tmp);
 
   return bStar;
 }
 
-long double minkowskiB(basis bStar, int dim){
-  long double gamma;
-  gamma = 1 + ((long double)dim/4);
+double minkowskiB(basis bStar, int dim){
+  double gamma;
+  gamma = 1 + ((double)dim/4);
 
   gamma = sqrt(gamma);
 
-  vector normArray = (vector)malloc(sizeof(long double) * dim);
+  vector normArray = (vector)malloc(sizeof(double) * dim);
 
 
   for (int i = 0; i < dim; i++){
     normArray[i] = norm(bStar[i], dim);
   }
 
-  // printf("norm 1: %f\n", normArray[1]);
-  // printf("norm 2: %f\n", normArray[2]);
-  // printf("norm 3: %f\n", normArray[3]);
-  // printf("norm 4: %f\n", normArray[4]);
-
-  long double volume;
+  double volume;
   volume = 1;
   for (int i = 0; i < dim; i++){
     volume *= normArray[i];
   }
 
-  volume = pow(volume, (1/(long double)dim));
+  freeVector(normArray);
 
-  long double bound;
+  volume = pow(volume, (1/(double)dim));
+
+  double bound;
 
   bound = gamma * volume;
 
@@ -143,21 +148,21 @@ void lll(basis b, int dim){
   basis lllBStar = (basis)malloc(sizeof(vector) * dim);
 
   for (int i = 0; i < dim; i++){
-    lllBStar[i] = (vector)malloc(sizeof(long double) * dim);
+    lllBStar[i] = (vector)malloc(sizeof(double) * dim);
   }
 
   basis lllMu = (basis)malloc(sizeof(vector) * dim);
 
   for (int i = 0; i < dim; i++){
-    lllMu[i] = (vector)malloc(sizeof(long double) * dim);
+    lllMu[i] = (vector)malloc(sizeof(double) * dim);
   }
 
 
   lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
 
   int k = 1;
-  long double delta = 0.75;
-  vector tmpCpy = (vector)malloc(sizeof(long double) * dim);
+  double delta = 0.75;
+  vector tmpCpy = (vector)malloc(sizeof(double) * dim);
 
   while(k < dim){ //was k<= dim
     for (int j = k - 1; j >= 0; j--){
@@ -190,10 +195,15 @@ void lll(basis b, int dim){
       k = fmax(k - 1, 1); //was fmax(k - 1, 2)
     }
   }
+
+  freeBasis(lllBStar, dim);
+  freeBasis(lllMu, dim);
+  freeVector(tmpCpy);
+
 }
 
-long double muSum(basis mu, vector v, long double dim, int startBound){
-  long double collector = 0;
+double muSum(basis mu, vector v, double dim, int startBound){
+  double collector = 0;
   for (int i = startBound; i < dim; i++){
     collector -= (mu[i][startBound - 1] * v[i]);
   }

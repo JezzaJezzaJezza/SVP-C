@@ -2,12 +2,12 @@ import os
 import re
 from collections import defaultdict
 
-def clean_folder(folder_path, max_cases_per_dimension=25):
+def clean_folder(folder_path, max_cases_per_dimension=10):
     files_by_dimension = defaultdict(lambda: defaultdict(list))
 
     # Step 1: Categorize files by dimension and index, excluding 'intrel' files
     for filename in os.listdir(folder_path):
-        if 'intrel' in filename:
+        if '64' in filename:
             os.remove(os.path.join(folder_path, filename))
             print(f"Removed: {filename}")
             continue

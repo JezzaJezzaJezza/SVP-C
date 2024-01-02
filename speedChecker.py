@@ -38,6 +38,6 @@ def run_hyperforme_on_cases(folder_path):
     return df
 
 if __name__ == "__main__":
-    folder_path = '/Users/jezza/Downloads/gen'  # Replace with the path to your folder
+    folder_path = '/Users/jezza/Downloads/testCases'  # Replace with the path to your folder
     df = run_hyperforme_on_cases(folder_path)
     print("Speed data saved to speeds.csv")

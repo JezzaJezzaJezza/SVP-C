@@ -1,6 +1,6 @@
 #include "vector.h"
-#include "math.h"
-#include "stdio.h"
+#include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 void vectorInit(vector *v, int len){
@@ -22,7 +22,7 @@ void freeBasis(basis b, int dim){
 
 
 
-//use inline
+
 double innerProd(vector v, vector u, int dim){
   double solution = 0;
   for (int i = 0; i < dim; i++){
@@ -31,12 +31,13 @@ double innerProd(vector v, vector u, int dim){
   return solution;
 }
 
-vector addV(vector v, vector u, int dim){
-  for (int i = 0; i < dim; i++){
-    v[i] += u[i];
-  }
-  return v;
-}
+// vector scalarMult(vector v, double mult, int dim){
+//   vector output = (vector)malloc(sizeof(double) * dim);
+//   for (int i = 0; i < dim; i++){
+//     output[i] = v[i] * mult;
+//   }
+//   return output;
+// }
 
 void scalarMult(vector v, double mult, int dim){
   for (int i = 0; i < dim; i++){
@@ -44,30 +45,10 @@ void scalarMult(vector v, double mult, int dim){
   }
 }
 
-void subV(double* v, double* u, int dim) {
+void subV(vector v, vector u, int dim) {
   for (int i = 0; i < dim; i++) {
     v[i] -= u[i];
   }
-}
-
-double norm(vector v, int dim){
-  
-  vector squaredVals = (vector)malloc(sizeof(double) * dim);
-
-  for (int i = 0; i < dim; i++){
-    squaredVals[i] = pow(v[i], 2);
-  }
-
-  double output = 0;
-
-  for (int i = 0; i < dim; i++){
-    output += squaredVals[i];
-  }
-
-  freeVector(squaredVals);
-
-  output = sqrt(output);
-  return output;
 }
 
 void copyVec(vector v, vector w, int dim) {
@@ -76,40 +57,23 @@ void copyVec(vector v, vector w, int dim) {
     }
 }
 
-basis gramSchmidt(basis b, int dim, basis mu, basis bStar){ 
-  vector v = (vector)malloc(sizeof(double) * dim);
-  vector tmp = malloc(sizeof(double) * dim);
+basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
+  int i,j,k;
+  for(i=0; i < dim; i++){
 
-  copyVec(b[0], bStar[0], dim);
-
-  for (int i = 1; i < dim; i++){
-
-    //copyVec(v, tmp, dim);
-    
-    copyVec(b[i], v, dim);
-    
-    
-    for (int j = i - 1; j >= 0; j--){
-        //printf("j = %i\n",j);
-    
-      mu[i][j] = innerProd(b[i], bStar[j], dim)/innerProd(bStar[j], bStar[j], dim);
-      
-      copyVec(bStar[j], tmp, dim);
-      
-   
-      //printf("tmp = %f\n", tmp[0]);
-      scalarMult(tmp, mu[i][j], dim);
-      //printf("tmp = %f\n", tmp[0]);
-    
-      
-      subV(v, tmp, dim);
-      //printf("v = %f\n", v[0]);
+    for(j=0; j < dim; j++){
+      mu[i][j] = 0;
+      bStar[i][j] = b[i][j];
     }
-    copyVec(v, bStar[i], dim);
+
+    for(k=0; k < i; k++){
+      mu[i][k] = innerProd(b[i], bStar[k], dim)/innerProd(bStar[k], bStar[k], dim);
+      for(j=0; j < dim; j++){
+        bStar[i][j] -=mu[i][k] * bStar[k][j];
+      }
+    }
 
   }
-  freeVector(v);
-  freeVector(tmp);
 
   return bStar;
 }
@@ -120,20 +84,13 @@ double minkowskiB(basis bStar, int dim){
 
   gamma = sqrt(gamma);
 
-  vector normArray = (vector)malloc(sizeof(double) * dim);
-
-
-  for (int i = 0; i < dim; i++){
-    normArray[i] = norm(bStar[i], dim);
-  }
-
   double volume;
   volume = 1;
   for (int i = 0; i < dim; i++){
-    volume *= normArray[i];
+    volume *= sqrt(innerProd (bStar[i], bStar[i], dim));;
   }
 
-  freeVector(normArray);
+  //freeVector(normArray);
 
   volume = pow(volume, (1/(double)dim));
 
@@ -144,41 +101,34 @@ double minkowskiB(basis bStar, int dim){
   return bound;
 }
 
-void lll(basis b, int dim){
-  basis lllBStar = (basis)malloc(sizeof(vector) * dim);
+void lll(basis b, int dim, basis bStar, basis mu){
 
-  for (int i = 0; i < dim; i++){
-    lllBStar[i] = (vector)malloc(sizeof(double) * dim);
-  }
-
-  basis lllMu = (basis)malloc(sizeof(vector) * dim);
-
-  for (int i = 0; i < dim; i++){
-    lllMu[i] = (vector)malloc(sizeof(double) * dim);
-  }
-
-
-  lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
+  bStar = gramSchmidt(b, dim, mu, bStar);
 
   int k = 1;
-  double delta = 0.75;
+  double delta = 0.99;
   vector tmpCpy = (vector)malloc(sizeof(double) * dim);
 
   while(k < dim){ //was k<= dim
     for (int j = k - 1; j >= 0; j--){
-      if (fabs(lllMu[k][j]) > 1/2){
+      if (fabs(mu[k][j]) > 1/2){
 
         copyVec(b[j], tmpCpy, dim);
-        scalarMult(tmpCpy, round(lllMu[k][j]), dim);
+        scalarMult(tmpCpy, round(mu[k][j]), dim);
         subV(b[k], tmpCpy, dim);
 
-        //naive way
-        lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
+        double tmpMu = mu[k][j];
+        mu[k][j] = mu[k][j] - round(mu[k][j]);
+
+
+        for(int i=0; i < j; i++){
+          mu[k][i] = mu[k][i] - tmpMu * mu[j][i];
+        }
       }
     }
 
-    copyVec(lllBStar[k - 1], tmpCpy, dim);
-    if (innerProd(lllBStar[k], lllBStar[k], dim) > ((delta - pow(lllMu[k][k - 1], 2)) * innerProd(tmpCpy, tmpCpy, dim))){
+    //copyVec(lllBStar[k - 1], tmpCpy, dim);
+    if (innerProd(bStar[k], bStar[k], dim) > ((delta - pow(mu[k][k - 1], 2)) * innerProd(bStar[k - 1], bStar[k - 1], dim))){
 
       k += 1;
 
@@ -190,16 +140,15 @@ void lll(basis b, int dim){
       
       copyVec(tmpCpy, b[k - 1], dim);
 
-      lllBStar = gramSchmidt(b, dim, lllMu, lllBStar);
+      //lllBStar[k - 1]
+
+      bStar = gramSchmidt(b, dim, mu, bStar);
       
       k = fmax(k - 1, 1); //was fmax(k - 1, 2)
     }
   }
 
-  freeBasis(lllBStar, dim);
-  freeBasis(lllMu, dim);
   freeVector(tmpCpy);
-
 }
 
 double muSum(basis mu, vector v, double dim, int startBound){

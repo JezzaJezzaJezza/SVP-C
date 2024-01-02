@@ -21,9 +21,10 @@ double minkowskiB(basis bStar, int dim);
 double norm(vector v, int dim);
 double muSum(basis mu, vector v, double dim, int startBound);
 void copyVec(vector v, vector w, int dim);
-void lll(basis b, int dim);
+void lll(basis b, int dim, basis bStar, basis mu);
 // helper functions
 void subV(vector v, vector u, int dim);
+//vector scalarMult(vector v, double mult, int dim);
 void scalarMult(vector v, double mult, int dim);
 vector addV(vector v, vector u, int dim);
 double innerProd(vector v, vector u, int dim);

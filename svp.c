@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #include "vector.h"
 
@@ -19,9 +20,18 @@ double svpSolve(basis b, int dim){
     for (int i = 0; i < dim; i++){
         bStar[i] = (vector)malloc(sizeof(double) * dim);
     }
-    
 
-    lll(b, dim);
+    // basis lllBStar = (basis)malloc(sizeof(vector) * dim);
+    // for (int i = 0; i < dim; i++){
+    //     lllBStar[i] = (vector)malloc(sizeof(double) * dim);
+    // }
+
+    // basis lllMu = (basis)malloc(sizeof(vector) * dim);
+    // for (int i = 0; i < dim; i++){
+    //     lllMu[i] = (vector)malloc(sizeof(double) * dim);
+    // }
+    
+    lll(b, dim, bStar, mu);
 
     bStar = gramSchmidt(b, dim, mu, bStar);
 
@@ -31,7 +41,6 @@ double svpSolve(basis b, int dim){
     for (int i = 0; i < dim; i++){
         mu[i][i] = 1;
     }
-
 
     R = minkowskiB(bStar, dim);
 
@@ -49,10 +58,9 @@ double svpSolve(basis b, int dim){
     int k = 0;
     int largest = 0;
 
-
     while (1){
 
-        rho[k] = rho[k + 1] + pow((v[k] - c[k]), 2) * (innerProd(bStar[k], bStar[k], dim));
+        rho[k] = rho[k+1] + pow((v[k] - c[k]), 2) * (innerProd(bStar[k], bStar[k], dim));
 
         if (rho[k] < rSquared){ 
 
@@ -66,14 +74,14 @@ double svpSolve(basis b, int dim){
                 c[k] = muSum(mu, v, dim, k+1);
                 v[k] = round(c[k]);
                 w[k] = 1;
-
+                
             }
 
         } else {
 
             k += 1;
 
-            if (k == (dim)){
+            if (k == dim){
                 
                 freeVector(rho);
                 freeVector(v);
@@ -98,21 +106,12 @@ double svpSolve(basis b, int dim){
                 } else {
 
                     v[k] += w[k];
-                    w[k] += 1;
 
                 }
+                w[k] += 1;
             }
         }
     }
-
-    freeVector(rho);
-    freeVector(v);
-    freeVector(c);
-    freeVector(w);
-    freeBasis(bStar, dim);
-    freeBasis(mu, dim);
-    
-    return rSquared;
 }
 
 int main(int argc, char** argv){
@@ -145,10 +144,10 @@ int main(int argc, char** argv){
         }
         b[i] = v;
     }
-    
+
     double out;
     out = svpSolve(b, dimension);
-   //printf("%f\n", out);
+
     char *file = "output.txt";
 
    FILE *fp = fopen(file, "w");

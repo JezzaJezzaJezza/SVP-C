@@ -7,9 +7,10 @@
 #include "vector.h"
 
 double svpSolve(basis b, int dim){
-    if (dim == 1){
+    if (dim == 1){//Check if the input is one dimensional. If it is, then return the value immediately
         return b[0][0];
     }
+
 
     basis mu = (basis)malloc(sizeof(vector) * dim);
     for (int i = 0; i < dim; i++){
@@ -20,35 +21,25 @@ double svpSolve(basis b, int dim){
     for (int i = 0; i < dim; i++){
         bStar[i] = (vector)malloc(sizeof(double) * dim);
     }
-
-    // basis lllBStar = (basis)malloc(sizeof(vector) * dim);
-    // for (int i = 0; i < dim; i++){
-    //     lllBStar[i] = (vector)malloc(sizeof(double) * dim);
-    // }
-
-    // basis lllMu = (basis)malloc(sizeof(vector) * dim);
-    // for (int i = 0; i < dim; i++){
-    //     lllMu[i] = (vector)malloc(sizeof(double) * dim);
-    // }
     
-    lll(b, dim, bStar, mu);
+    lll(b, dim, bStar, mu); //Run the lll algorithm to get a reduced basis for b
 
-    bStar = gramSchmidt(b, dim, mu, bStar);
+    bStar = gramSchmidt(b, dim, mu, bStar);//recompute the b* for the new reduced basis
 
     double R;
     double rSquared;
 
-    for (int i = 0; i < dim; i++){
+    for (int i = 0; i < dim; i++){ //for loop to make the diagonals of the matrix that stores mu values equal to 1
         mu[i][i] = 1;
     }
 
-    R = minkowskiB(bStar, dim);
+    R = minkowskiB(bStar, dim);//use minkowski's theorem to find a suitable bound
 
 
     rSquared = pow(R, 2);
     
 
-
+    //Delcaration for variables that will be used
     vector rho = (vector)calloc(dim + 1, sizeof(double));
     vector v = (vector)calloc(dim, sizeof(double));
     v[0] = 1;
@@ -58,7 +49,7 @@ double svpSolve(basis b, int dim){
     int k = 0;
     int largest = 0;
 
-    while (1){
+    while (1){ //The main loop for Schnorr-Euchner enumeration (SE)
 
         rho[k] = rho[k+1] + pow((v[k] - c[k]), 2) * (innerProd(bStar[k], bStar[k], dim));
 
@@ -83,6 +74,7 @@ double svpSolve(basis b, int dim){
 
             if (k == dim){
                 
+                //shortest vector found --> return and free variables
                 freeVector(rho);
                 freeVector(v);
                 freeVector(c);
@@ -117,40 +109,38 @@ double svpSolve(basis b, int dim){
 int main(int argc, char** argv){
     // Read in command line argument (expects 1)
     // Reading in the input and creating the necessary data to store
-    // dimensions are always going to be a whole number when squared because basis vector must form full rank matrix
-    // initialise R^n vectors and store pointers for each vector in the basis array.
+    // dimensions are always going to be a whole number when squared because basis vectors must form a square matrix
     int dimension;
     dimension = sqrt(argc - 1);
-    basis b = malloc(dimension * sizeof(vector*));
+    basis b = (basis)malloc(dimension * sizeof(vector*));
 
-//MAKE TEMPLATE STYLE FOR EACH DIM UPTO 10, THEN DO A GENERIC ONE LIKE YOU DID HERE.
     for (int i = 0; i < dimension; i++){
 
-        vector v = malloc(dimension * sizeof(double));
+        vector v = (vector)malloc(dimension * sizeof(double));
 
         for (int j = 0; j < dimension; j++){
             
             char *arg = argv[i * dimension + j + 1];
 
-            if (arg[0] == '['){
+            if (arg[0] == '['){ //skip over [
                 arg++;
             }
 
 
-            if (arg[strlen(arg) - 1] == ']'){
+            if (arg[strlen(arg) - 1] == ']'){ //change ] to \0
                 arg[strlen(arg) - 1] = '\0';
             }
-            v[j] = atof(arg);
+            v[j] = atof(arg);//convert input from string to float and store in vector
         }
-        b[i] = v;
+        b[i] = v;//store the vector in the basis
     }
 
     double out;
-    out = svpSolve(b, dimension);
+    out = svpSolve(b, dimension);//call SE
 
     char *file = "output.txt";
 
-   FILE *fp = fopen(file, "w");
+   FILE *fp = fopen(file, "w");//write to file
    fprintf(fp, "%f", out);
    fclose(fp);
     

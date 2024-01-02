@@ -3,27 +3,19 @@
 #include <stdio.h>
 #include <string.h>
 
-void vectorInit(vector *v, int len){
-  *v = (double *)malloc(len * sizeof(int));
-}
-
-void freeVector(vector v){
+void freeVector(vector v){//free vectors
   free(v);
   v = NULL;
 }
 
-void freeBasis(basis b, int dim){
+void freeBasis(basis b, int dim){//frees basis
   for (int i = 0; i < dim; i++){
       freeVector(b[i]);
    }
    free(b);
 }
 
-
-
-
-
-double innerProd(vector v, vector u, int dim){
+double innerProd(vector v, vector u, int dim){//see vector.h
   double solution = 0;
   for (int i = 0; i < dim; i++){
     solution += (v[i] * u[i]);
@@ -31,33 +23,25 @@ double innerProd(vector v, vector u, int dim){
   return solution;
 }
 
-// vector scalarMult(vector v, double mult, int dim){
-//   vector output = (vector)malloc(sizeof(double) * dim);
-//   for (int i = 0; i < dim; i++){
-//     output[i] = v[i] * mult;
-//   }
-//   return output;
-// }
-
-void scalarMult(vector v, double mult, int dim){
+void scalarMult(vector v, double mult, int dim){//see vector.h
   for (int i = 0; i < dim; i++){
     v[i] = v[i] * mult;
   }
 }
 
-void subV(vector v, vector u, int dim) {
+void subV(vector v, vector u, int dim) {//see vector.h
   for (int i = 0; i < dim; i++) {
     v[i] -= u[i];
   }
 }
 
-void copyVec(vector v, vector w, int dim) {
+void copyVec(vector v, vector u, int dim) {//see vector.h
     for (int i = 0; i < dim; i++){
-      w[i] = v[i];
+      u[i] = v[i];
     }
 }
 
-basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
+basis gramSchmidt(basis b, int dim, basis mu, basis bStar){//main gram-schmidt function, written as shown in the paper "Efficient Implementations of Sieving and Enumeration Algorithms for Lattice-Based Cryptography", https://www.mdpi.com/2227-7390/9/14/1618, Code 1., Viewed on Dec 28th 2023, Authors: Mr. Hami Satılmış, Dr. Sedat Akleylek and Prof. Dr. Cheng-Chi Lee
   int i,j,k;
   for(i=0; i < dim; i++){
 
@@ -78,7 +62,7 @@ basis gramSchmidt(basis b, int dim, basis mu, basis bStar){
   return bStar;
 }
 
-double minkowskiB(basis bStar, int dim){
+double minkowskiB(basis bStar, int dim){//Used formula from Yasuda, Masaya. (2021). A Survey of Solving SVP Algorithms and Recent Strategies for Solving the SVP Challenge. 10.1007/978-981-15-5191-8_15. https://www.researchgate.net/publication/346358063_A_Survey_of_Solving_SVP_Algorithms_and_Recent_Strategies_for_Solving_the_SVP_Challenge
   double gamma;
   gamma = 1 + ((double)dim/4);
 
@@ -90,8 +74,6 @@ double minkowskiB(basis bStar, int dim){
     volume *= sqrt(innerProd (bStar[i], bStar[i], dim));;
   }
 
-  //freeVector(normArray);
-
   volume = pow(volume, (1/(double)dim));
 
   double bound;
@@ -101,12 +83,12 @@ double minkowskiB(basis bStar, int dim){
   return bound;
 }
 
-void lll(basis b, int dim, basis bStar, basis mu){
+void lll(basis b, int dim, basis bStar, basis mu){//lll algorithm adapted from Sanjay Bhattacherjee, Julio Hernandez-Castro, Jack Moyler. A Greedy Global Framework for LLL. Algorithm 2. - https://eprint.iacr.org/2023/261.pdf
 
   bStar = gramSchmidt(b, dim, mu, bStar);
 
   int k = 1;
-  double delta = 0.99;
+  double delta = 0.85;//delta is well defined for (0.25,1], and after experimenting with different test cases, setting delta to 0.99 yielded the best results
   vector tmpCpy = (vector)malloc(sizeof(double) * dim);
 
   while(k < dim){ //was k<= dim
@@ -126,8 +108,6 @@ void lll(basis b, int dim, basis bStar, basis mu){
         }
       }
     }
-
-    //copyVec(lllBStar[k - 1], tmpCpy, dim);
     if (innerProd(bStar[k], bStar[k], dim) > ((delta - pow(mu[k][k - 1], 2)) * innerProd(bStar[k - 1], bStar[k - 1], dim))){
 
       k += 1;
@@ -140,18 +120,15 @@ void lll(basis b, int dim, basis bStar, basis mu){
       
       copyVec(tmpCpy, b[k - 1], dim);
 
-      //lllBStar[k - 1]
-
       bStar = gramSchmidt(b, dim, mu, bStar);
       
-      k = fmax(k - 1, 1); //was fmax(k - 1, 2)
+      k = fmax(k - 1, 1);
     }
   }
-
   freeVector(tmpCpy);
 }
 
-double muSum(basis mu, vector v, double dim, int startBound){
+double muSum(basis mu, vector v, double dim, int startBound){//returns the negation of a sum shown below
   double collector = 0;
   for (int i = startBound; i < dim; i++){
     collector -= (mu[i][startBound - 1] * v[i]);

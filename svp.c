@@ -120,7 +120,7 @@ int main(int argc, char** argv){
             printf("Invalid input.\n");
             return 1;
         }
-        
+
         vector v = (vector)malloc(dimension * sizeof(double));
 
         for (int j = 0; j < dimension; j++){

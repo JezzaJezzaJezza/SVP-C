@@ -9,6 +9,11 @@ all: svp.o vector.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -f *.o runme vector
-	
-test:
+	rm -f *.o runme vector testProgram
+
+test: all test/tests.c vector.o
+	@echo "Starting tests"
+	$(CC) -o testProgram test/tests.c vector.o -lm
+	./testProgram
+	@echo "Testing has finished... Cleaning"
+	rm -f *.o runme vector testProgram

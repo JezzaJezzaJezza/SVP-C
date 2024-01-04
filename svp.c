@@ -116,16 +116,22 @@ int main(int argc, char** argv){
 
     for (int i = 0; i < dimension; i++){
 
+        if (argv[i*dimension + 1][0] != '['){
+            printf("Invalid input.\n");
+            return 1;
+        }
+        
         vector v = (vector)malloc(dimension * sizeof(double));
 
         for (int j = 0; j < dimension; j++){
             
             char *arg = argv[i * dimension + j + 1];
 
+            //printf("%s\n",argv[i * dimension + j + 1]);
+
             if (arg[0] == '['){ //skip over [
                 arg++;
             }
-
 
             if (arg[strlen(arg) - 1] == ']'){ //change ] to \0
                 arg[strlen(arg) - 1] = '\0';

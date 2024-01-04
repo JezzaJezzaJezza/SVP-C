@@ -88,10 +88,10 @@ void lll(basis b, int dim, basis bStar, basis mu){//lll algorithm adapted from S
   bStar = gramSchmidt(b, dim, mu, bStar);
 
   int k = 1;
-  double delta = 0.85;//delta is well defined for (0.25,1], and after experimenting with different test cases, setting delta to 0.99 yielded the best results
+  double delta = 0.99;//delta is well defined for (0.25,1], and after experimenting with different test cases, setting delta to 0.99 yielded the best results for higher dimensions, however, since we will be dealing with smaller dimensions, 0.85 seemed to be a better balance
   vector tmpCpy = (vector)malloc(sizeof(double) * dim);
 
-  while(k < dim){ //was k<= dim
+  while(k < dim){
     for (int j = k - 1; j >= 0; j--){
       if (fabs(mu[k][j]) > 1/2){
 

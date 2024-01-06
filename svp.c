@@ -22,7 +22,6 @@ double svpSolve(basis b, int dim) {
     lll(b, dim, bStar, mu);  // Run the lll algorithm
 
     bStar = gramSchmidt(b, dim, mu, bStar);  // recompute the b*
-
     double R;
     double rSquared;
 
@@ -125,6 +124,11 @@ int main(int argc, char** argv) {
 
     double out;
     out = svpSolve(b, dimension);  // call SE
+
+    if (out == 0) { // check for error output
+        printf("Error.\n");
+        return 1;
+    }
 
     char *file = "result.txt";
 

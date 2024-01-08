@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     double out;
     out = svpSolve(b, dimension);  // call SE
 
-    if (out == 0) { // check for error output
+    if (out == 0) {  // check for error output
         printf("Error.\n");
         return 1;
     }

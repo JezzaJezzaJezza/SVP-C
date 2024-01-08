@@ -1,5 +1,7 @@
 #include "vector.h"
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 void freeVector(vector v) {  // free vectors
   free(v);
@@ -95,6 +97,19 @@ void lll(basis b, int dim, basis bStar, basis mu) {
   // , Jack Moyler. A Greedy Global Framework for LLL.
   // Algorithm 2. - https://eprint.iacr.org/2023/261.pdf
   bStar = gramSchmidt(b, dim, mu, bStar);
+
+  int counter = 0;
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < dim; j++) {
+      if (bStar[i][j] == 0) {  // Linear dependence check
+        counter += 1;
+      }
+    }
+    if (counter == dim) {
+      printf("Vectors are not linearly independent.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
 
   int k = 1;
   double delta = 0.85;  // delta is well defined for (0.25,1]

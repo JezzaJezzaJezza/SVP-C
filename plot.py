@@ -3,7 +3,7 @@ import seaborn as sns
 import re
 import matplotlib.pyplot as plt
 
-df =pd.read_csv("./highDimInstrel.csv")
+df =pd.read_csv("./output.csv")
 
 def extract_dim_bit(svp_file):
     pattern = r'(r|u)_(\d{1,2})d_(\d{1,2})b'
@@ -18,6 +18,7 @@ df['type'], df['dimension'], df['bits'] = zip(*df['test case'].apply(extract_dim
 
 df[['dimension', 'bits']] = df[['dimension', 'bits']].astype(float)
 sns.set_theme()
-a =sns.lineplot(x="dimension", y="median", hue="bits", palette="deep", data=df)
-a.set(ylabel="Time (ms)", xlabel="Dimension")
+a =sns.lineplot(x="dimension", y="median", hue="bits", palette="bright", data=df)
+a.set(ylabel="Time (ms)", xlabel="Dimension", yscale="log")
+a.set_xticks(range(50))
 plt.show()

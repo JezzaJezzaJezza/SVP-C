@@ -109,10 +109,11 @@ void lll(basis b, int dim, basis bStar, basis mu) {
       printf("Vectors are not linearly independent.\n");
       exit(EXIT_FAILURE);
     }
+    counter = 0;
   }
 
   int k = 1;
-  double delta = 0.85;  // delta is well defined for (0.25,1]
+  double delta = 0.99;  // delta is well defined for (0.25,1]
   vector tmpCpy = (vector)malloc(sizeof(double) * dim);
 
   while (k < dim) {

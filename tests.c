@@ -2,8 +2,7 @@
 #include <assert.h>
 
 void checkAnswer(double expected) {
-    FILE *outputFile;
-    outputFile = fopen("./result.txt", "r");
+    FILE *outputFile = fopen("./result.txt", "r");
     double output = 0;
     fscanf(outputFile, "%lf", &output);
     fclose(outputFile);

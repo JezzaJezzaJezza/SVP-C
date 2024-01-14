@@ -5,9 +5,8 @@
 
 double svpSolve(basis b, int dim) {
     if (dim == 1) {  // Check if the input is one dimensional.
-        return b[0][0];
+        return fabs(b[0][0]);
     }
-
 
     basis mu = (basis)malloc(sizeof(vector) * dim);
     for (int i = 0; i < dim; i++) {
@@ -102,6 +101,7 @@ int main(int argc, char** argv) {
         // Ensure that each vector starts with [
         if (argv[i*dimension + 1][0] != '[') {
             printf("Invalid input.\n");
+            freeBasis(b, dimension);
             return 1;
         }
 

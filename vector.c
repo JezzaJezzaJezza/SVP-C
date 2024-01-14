@@ -99,14 +99,18 @@ void lll(basis b, int dim, basis bStar, basis mu) {
   bStar = gramSchmidt(b, dim, mu, bStar);
 
   int counter = 0;
+  double lBound = 1e-10;
   for (int i = 0; i < dim; i++) {
     for (int j = 0; j < dim; j++) {
-      if (bStar[i][j] == 0) {  // Linear dependence check
+      if (fabs(bStar[i][j]) < lBound) {  // Linear dependence check
         counter += 1;
       }
     }
     if (counter == dim) {
       printf("Vectors are not linearly independent.\n");
+      freeBasis(b, dim);
+      freeBasis(bStar, dim);
+      freeBasis(mu, dim);
       exit(EXIT_FAILURE);
     }
     counter = 0;
